@@ -449,6 +449,16 @@ globalkeys = awful.util.table.join(
             if client.focus then client.focus:raise() end
         end),
 
+-- Show vimwiki
+    awful.key({ modkey }, "w",
+        function ()
+	  awful.util.spawn(terminal .. " -e vim  /home/heiko/wiki/index.wiki")
+        end),
+
+--   awful.key({modkey}), "w",
+--       function()
+--           awful.util.spawn_with_shell(editor .." /home/heiko/wiki/index.wiki")
+--   end),
     -- Show/Hide Wibox
     awful.key({ modkey }, "b", function ()
         mywibox[mouse.screen].visible = not mywibox[mouse.screen].visible
