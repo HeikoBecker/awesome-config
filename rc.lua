@@ -1,8 +1,6 @@
 --[[
-                                      
      Multicolor Awesome WM config 2.0 
      github.com/copycat-killer        
-                                      
 --]]
 
 -- {{{ Required libraries
@@ -15,6 +13,7 @@ local beautiful = require("beautiful")
 local naughty   = require("naughty")
 local drop      = require("scratchdrop")
 local lain      = require("lain")
+local mytaskwid = require("mytasklist")
 -- }}}
 
 -- {{{ Error handling
@@ -48,8 +47,8 @@ function run_once(cmd)
   awful.util.spawn_with_shell("pgrep -u $USER -x " .. findme .. " > /dev/null || (" .. cmd .. ")")
 end
 
---run_once("")
---run_once("unclutter")
+run_once("nm-applet")
+run_once("/usr/bin/CopyAgent")
 -- }}}
 
 -- {{{ Variable definitions
@@ -67,10 +66,11 @@ editor     = os.getenv("EDITOR") or "vim"
 editor_cmd = terminal .. " -e " .. editor
 
 -- user defined
-browser    = "firefox"
-gui_editor = "gvim"
-graphics   = "gimp"
-mail       = "thunderbird"
+browser     = "firefox"
+gui_editor  = "gvim"
+graphics    = "gimp"
+mail        = "thunderbird"
+wiki        = browser .. " --new-window file:///home/heiko/wiki/wiki_5.1.8.html"
 
 local layouts = {
     awful.layout.suit.floating,
@@ -88,8 +88,8 @@ local layouts = {
 
 -- {{{ Tags
 tags = {
-   names = { "web", "mail","term", "docs", "media", "files", "other" },
-   layout = { layouts[2], layouts[2],layouts[3], layouts[4], layouts[1], layouts[7], layouts[1] }
+   names = { "1", "2","3", "4", "5", "6"},
+   layout = { layouts[2], layouts[2],layouts[2], layouts[2], layouts[2], layouts[1]}
 }
 for s = 1, screen.count() do
 -- Each screen has its own tag table.
@@ -105,17 +105,12 @@ if beautiful.wallpaper then
 end
 -- }}}
 
--- {{{ Freedesktop Menu
---mymainmenu = awful.menu.new({ items = require("menugen").build_menu(),
---                              theme = { height = 16, width = 130 }})
--- }}}
-
 -- {{{ Wibox
 markup      = lain.util.markup
 
 -- Textclock
 clockicon = wibox.widget.imagebox(beautiful.widget_clock)
-mytextclock = awful.widget.textclock(markup("#7788af", "%A %d %B ") .. markup("#343639", ">") .. markup("#de5e1e", " %H:%M "))
+mytextclock = awful.widget.textclock(markup("#7788af", "%A %d %B ") .. markup("#e33a6e", ">") .. markup("#de5e1e", " %H:%M "))
 
 -- Calendar
 lain.widgets.calendar:attach(mytextclock, { font_size = 10 })
@@ -135,27 +130,6 @@ fswidget = lain.widgets.fs({
         widget:set_markup(markup("#80d9d8", fs_now.used .. "% "))
     end
 })
-
---[[ Mail IMAP check
--- commented because it needs to be set before use
-mailicon = wibox.widget.imagebox()
-mailicon:buttons(awful.util.table.join(awful.button({ }, 1, function () awful.util.spawn(mail) end)))
-mailwidget = lain.widgets.imap({
-    timeout  = 180,
-    server   = "server",
-    mail     = "mail",
-    password = "keyring get mail",
-    settings = function()
-        if mailcount > 0 then
-            mailicon:set_image(beautiful.widget_mail)
-            widget:set_markup(markup("#cccccc", mailcount .. " "))
-        else
-            widget:set_text("")
-            mailicon:set_image(nil)
-        end
-    end
-})
-]]
 
 -- CPU
 cpuicon = wibox.widget.imagebox()
@@ -183,7 +157,7 @@ batwidget = lain.widgets.bat({
         else
             bat_now.perc = bat_now.perc .. "% "
         end
-        widget:set_text(bat_now.perc)
+        widget:set_text(bat_now.perc .. bat_now.time)
     end
 })
 
@@ -223,31 +197,6 @@ memicon = wibox.widget.imagebox(beautiful.widget_mem)
 memwidget = lain.widgets.mem({
     settings = function()
         widget:set_markup(markup("#e0da37", mem_now.used .. "M "))
-    end
-})
-
--- MPD
-mpdicon = wibox.widget.imagebox()
-mpdwidget = lain.widgets.mpd({
-    settings = function()
-        mpd_notification_preset = {
-            text = string.format("%s [%s] - %s\n%s", mpd_now.artist,
-                   mpd_now.album, mpd_now.date, mpd_now.title)
-        }
-
-        if mpd_now.state == "play" then
-            artist = mpd_now.artist .. " > "
-            title  = mpd_now.title .. " "
-            mpdicon:set_image(beautiful.widget_note_on)
-        elseif mpd_now.state == "pause" then
-            artist = "mpd "
-            title  = "paused "
-        else
-            artist = ""
-            title  = ""
-            mpdicon:set_image(nil)
-        end
-        widget:set_markup(markup("#e54c62", artist) .. markup("#b2b2b2", title))
     end
 })
 
@@ -325,7 +274,9 @@ for s = 1, screen.count() do
     mytaglist[s] = awful.widget.taglist(s, awful.widget.taglist.filter.all, mytaglist.buttons)
 
     -- Create a tasklist widget
-    mytasklist[s] = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, mytasklist.buttons)
+    --mytasklist[s] = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, mytasklist.buttons)
+    mytasklist[s] = mytaskwid.new(s, awful.widget.tasklist.filter.currenttags, mytasklist.buttons)
+
 
     -- Create the upper wibox
     mywibox[s] = awful.wibox({ position = "top", screen = s, height = 20 })
@@ -334,9 +285,7 @@ for s = 1, screen.count() do
     -- Widgets that are aligned to the upper left
     local left_layout = wibox.layout.fixed.horizontal()
     left_layout:add(mytaglist[s])
-    left_layout:add(mypromptbox[s])
-    left_layout:add(mpdicon)
-    left_layout:add(mpdwidget)
+    --left_layout:add(mypromptbox[s])
 
     -- Widgets that are aligned to the upper right
     local right_layout = wibox.layout.fixed.horizontal()
@@ -452,13 +401,9 @@ globalkeys = awful.util.table.join(
 -- Show vimwiki
     awful.key({ modkey }, "w",
         function ()
-	  awful.util.spawn(terminal .. " -e vim  /home/heiko/wiki/index.wiki")
+      awful.util.spawn(wiki)
         end),
 
---   awful.key({modkey}), "w",
---       function()
---           awful.util.spawn_with_shell(editor .." /home/heiko/wiki/index.wiki")
---   end),
     -- Show/Hide Wibox
     awful.key({ modkey }, "b", function ()
         mywibox[mouse.screen].visible = not mywibox[mouse.screen].visible
@@ -494,12 +439,11 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Shift"   }, "q",      awesome.quit),
 
     -- Dropdown terminal
-    awful.key({ modkey,	          }, "z",      function () drop(terminal) end),
+    awful.key({ modkey,           }, "z",      function () drop(terminal) end),
 
     -- Widgets popups
-    awful.key({ altkey,           }, "c",      function () lain.widgets.calendar:show(7) end),
-    awful.key({ altkey,           }, "h",      function () fswidget.show(7) end),
-    awful.key({ altkey,           }, "w",      function () yawn.show(7) end),
+--    awful.key({ altkey,           }, "c",      function () lain.widgets.calendar:show(7) end),
+--    awful.key({ altkey,           }, "h",      function () fswidget.show(7) end),
 
     -- ALSA volume control
     awful.key({ altkey }, "Up",
@@ -523,35 +467,12 @@ globalkeys = awful.util.table.join(
             volumewidget.update()
         end),
 
-    -- MPD control
-    awful.key({ altkey, "Control" }, "Up",
-        function ()
-            awful.util.spawn_with_shell("mpc toggle || ncmpc toggle || pms toggle")
-            mpdwidget.update()
-        end),
-    awful.key({ altkey, "Control" }, "Down",
-        function ()
-            awful.util.spawn_with_shell("mpc stop || ncmpc stop || pms stop")
-            mpdwidget.update()
-        end),
-    awful.key({ altkey, "Control" }, "Left",
-        function ()
-            awful.util.spawn_with_shell("mpc prev || ncmpc prev || pms prev")
-            mpdwidget.update()
-        end),
-    awful.key({ altkey, "Control" }, "Right",
-        function ()
-            awful.util.spawn_with_shell("mpc next || ncmpc next || pms next")
-            mpdwidget.update()
-        end),
-
     -- Copy to clipboard
     awful.key({ modkey }, "c", function () os.execute("xsel -p -o | xsel -i -b") end),
 
     -- User programs
     awful.key({ modkey }, "q", function () awful.util.spawn(browser) end),
-    awful.key({ modkey }, "i", function () awful.util.spawn(browser2) end),
-    awful.key({ modkey }, "s", function () awful.util.spawn(gui_editor) end),
+    awful.key({ modkey }, "s", function () awful.util.spawn_with_shell(terminal .. "-e vim" ) end),
     awful.key({ modkey }, "g", function () awful.util.spawn(graphics) end),
 
     -- Prompt
@@ -635,33 +556,23 @@ root.keys(globalkeys)
 awful.rules.rules = {
     -- All clients will match this rule.
     { rule = { },
-      properties = { border_width = beautiful.border_width,
-                     border_color = beautiful.border_normal,
-                     focus = awful.client.focus.filter,
-                     keys = clientkeys,
-                     buttons = clientbuttons,
-	                   size_hints_honor = false } },
-    { rule = { class = "sakura" },
-          properties = { opacity = 0.99 } },
-
-    { rule = { class = "MPlayer" },
-          properties = { floating = true } },
-
-    { rule = { class = "Dwb" },
-          properties = { tag = tags[1][1] } },
-
-    { rule = { class = "Iron" },
-          properties = { tag = tags[1][1] } },
-
+     properties = { border_width = beautiful.border_width,
+        border_color = beautiful.border_normal,
+        focus = awful.client.focus.filter,
+        keys = clientkeys,
+        buttons = clientbuttons,
+        size_hints_honor = false } 
+    },
+    { rule = { class = "Firefox" },
+    properties = { tag = tags[1][1] }
+    },
     { rule = { instance = "plugin-container" },
-          properties = { tag = tags[1][1] } },
-
-	  { rule = { class = "Gimp" },
-     	    properties = { tag = tags[1][4] } },
-
-    { rule = { class = "Gimp", role = "gimp-image-window" },
-          properties = { maximized_horizontal = true,
-                         maximized_vertical = true } },
+    properties = { --tag = tags[1][1], 
+        floating=true } 
+    },
+    { rule = { class = "Thunderbird" },
+    properties =  {tag = tags[1][2] }
+    },
 }
 -- }}}
 
