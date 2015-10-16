@@ -13,7 +13,7 @@ theme.wallpaper                     = theme.dir .. "/wall.png"
 theme.topbar_path                   = "png:" .. theme.dir .. "/icons/topbar/"
 
 theme.font                          = "Tamsyn 10.5"
-theme.taglist_font                  = "Icons 10"
+theme.taglist_font                  = "Icons 12"
 theme.fg_normal                     = "#D7D7D7"
 theme.fg_focus                      = "#F6784F"
 theme.bg_normal                     = "#060606"
