@@ -1,8 +1,6 @@
 --[[
-                                     
      Blackburn Awesome WM config 2.0 
      github.com/copycat-killer       
-                                     
 --]]
 
 -- {{{ Required libraries
@@ -297,7 +295,7 @@ globalkeys = awful.util.table.join(
     --        awful.client.focus.byidx(-1)
     --        if client.focus then client.focus:raise() end
     --    end),
-
+    --
     -- By direction client focus
     awful.key({ modkey }, "j",
         function()
