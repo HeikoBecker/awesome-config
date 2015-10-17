@@ -53,7 +53,7 @@ run_once("dropbox")
 -- {{{ Variable definitions
 
 -- beautiful init
-beautiful.init(os.getenv("HOME") .. "/.config/awesome/themes/blackburn/theme.lua")
+beautiful.init(os.getenv("HOME") .. "/.config/awesome/themes/gruvbox/theme.lua")
 
 -- common
 modkey     = "Mod4"
@@ -61,6 +61,7 @@ altkey     = "Mod1"
 terminal   = "sakura"
 editor     = os.getenv("EDITOR") or "vim"
 editor_cmd = terminal .. " -e " .. editor
+agenda     = terminal .. " -e " .. "less /home/heiko/.agendas/week"
 
 gui_editor = "gvim"
 
@@ -75,8 +76,8 @@ local layouts = {
 
 -- {{{ Tags
 tags = {
-   names = { "ƀ", "Ƅ", "Ɗ", "ƈ", "ƙ" },
-   layout = { layouts[1], layouts[3], layouts[1], layouts[3], layouts[5] }
+   names = {"","","","","",""}, --{ "ƀ", "Ƅ", "Ɗ", "ƈ", "ƙ" },
+   layout = { layouts[1], layouts[1], layouts[3], layouts[1], layouts[3], layouts[5] }
 }
 for s = 1, screen.count() do
    tags[s] = awful.tag(tags.names, s, tags.layout)
@@ -124,10 +125,10 @@ fshome = lain.widgets.fs({
 
 -- Battery
 batwidget = lain.widgets.bat({
-    battery="BAT1",
+    battery="BAT0",
     settings = function()
-        bat_header = " Bat "
-        bat_p      = bat_now.perc .. " "
+        bat_header = "  "
+        bat_p      = bat_now.perc .. "%"
 
         if bat_now.status == "Not present" then
             bat_header = ""
@@ -141,7 +142,7 @@ batwidget = lain.widgets.bat({
 -- ALSA volume
 volumewidget = lain.widgets.alsa({
     settings = function()
-        header = " Vol "
+        header = "  "
         level  = volume_now.level
 
         if volume_now.status == "off" then
@@ -243,10 +244,6 @@ for s = 1, screen.count() do
     local right_layout = wibox.layout.fixed.horizontal()
     if s == 1 then right_layout:add(wibox.widget.systray()) end
     right_layout:add(first)
-    --right_layout:add(mpdwidget)
-    --right_layout:add(mailwidget)
-    --right_layout:add(myweather.icon)
-    --right_layout:add(myweather)
     right_layout:add(fshome)
     right_layout:add(batwidget)
     right_layout:add(volumewidget)
@@ -261,7 +258,7 @@ for s = 1, screen.count() do
     mywibox[s]:set_widget(layout)
 
     -- Set proper background, instead of beautiful.bg_normal
-    mywibox[s]:set_bg(beautiful.topbar_path .. math.floor(screen[mouse.screen].workarea.width) .. ".png")
+--    mywibox[s]:set_bg(beautiful.topbar_path .. math.floor(screen[mouse.screen].workarea.width) .. ".png")
 end
 -- }}}
 
@@ -367,7 +364,6 @@ globalkeys = awful.util.table.join(
     -- Widgets popups
     awful.key({ altkey,           }, "c",      function () lain.widgets.calendar:show(7) end),
     awful.key({ altkey,           }, "h",      function () fshome.show(7) end),
-    awful.key({ altkey,           }, "w",      function () myweather.show(7) end),
 
     -- ALSA volume control
     awful.key({ }, "XF86AudioRaiseVolume",
@@ -391,6 +387,8 @@ globalkeys = awful.util.table.join(
 
     awful.key({}, "XF86MonBrightnessUp", function () awful.util.spawn("xbacklight -inc 10") end),
     awful.key({}, "XF86MonBrightnessDown", function () awful.util.spawn("xbacklight -dec 10") end),
+
+    awful.key({modkey}, "a", function () drop(agenda) end),
 
     -- Prompt
     awful.key({ modkey }, "r", function () mypromptbox[mouse.screen]:run() end),
