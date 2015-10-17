@@ -102,7 +102,7 @@ markup = lain.util.markup
 gray   = "#9E9C9A"
 
 -- Textclock
-mytextclock = awful.widget.textclock(" %H:%M ")
+mytextclock = awful.widget.textclock("  %H:%M ")
 
 -- Calendar
 lain.widgets.calendar:attach(mytextclock)
@@ -127,15 +127,40 @@ fshome = lain.widgets.fs({
 batwidget = lain.widgets.bat({
     battery="BAT0",
     settings = function()
-        bat_header = "  "
-        bat_p      = bat_now.perc .. "%"
+        perc_now = tonumber(bat_now.perc)
+        bat_header = "  "
+        bat_p      = bat_now.perc .. "% " .. bat_now.time .. " left "
 
         if bat_now.status == "Not present" then
             bat_header = ""
             bat_p      = ""
         end
 
-        widget:set_markup(markup(gray, bat_header) .. bat_p)
+        if bat_now.status == "Charging" then
+            bat_header = "  "
+        end
+
+        if perc_now < 90 then
+            bat_header = "  "
+        end
+
+        if perc_now < 75 then
+            bat_header = "  "
+        end
+
+        if perc_now < 50 then
+            bat_header = "  "
+        end
+
+        if perc_now < 25 then
+            bat_header = "  "
+        end
+
+        if perc_now < 20 then
+            widget:set_markup(markup(red, bat_header) .. bat_p)
+        else
+            widget:set_markup(markup(gray, bat_header) .. bat_p)
+        end
     end
 })
 
