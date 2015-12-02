@@ -48,6 +48,7 @@ end
 
 run_once("nm-applet")
 run_once("dropbox")
+run_once("redshift")
 -- }}}
 
 -- {{{ Variable definitions
@@ -61,7 +62,7 @@ altkey     = "Mod1"
 terminal   = "sakura"
 editor     = os.getenv("EDITOR") or "vim"
 editor_cmd = terminal .. " -e " .. editor
-agenda     = terminal .. " -e " .. "less /home/heiko/.agendas/week"
+agenda     = terminal .. " -e " .. " emacs -batch -l ~/.emacs -eval '(org-agenda-batch \"a\" )' |less"
 
 gui_editor = "gvim"
 
@@ -100,6 +101,7 @@ mymainmenu = awful.menu.new({ items = require("menugen").build_menu(),
 -- {{{ Wibox
 markup = lain.util.markup
 gray   = "#9E9C9A"
+red = "#cc241d"
 
 -- Textclock
 mytextclock = awful.widget.textclock("  %H:%M ")
@@ -125,20 +127,11 @@ fshome = lain.widgets.fs({
 
 -- Battery
 batwidget = lain.widgets.bat({
-    battery="BAT0",
+    battery="BAT1",
     settings = function()
         perc_now = tonumber(bat_now.perc)
         bat_header = "  "
         bat_p      = bat_now.perc .. "% " .. bat_now.time .. " left "
-
-        if bat_now.status == "Not present" then
-            bat_header = ""
-            bat_p      = ""
-        end
-
-        if bat_now.status == "Charging" then
-            bat_header = "  "
-        end
 
         if perc_now < 90 then
             bat_header = "  "
@@ -156,11 +149,21 @@ batwidget = lain.widgets.bat({
             bat_header = "  "
         end
 
+        if bat_now.status == "Not present" then
+            bat_header = ""
+            bat_p      = ""
+        end
+
+        if bat_now.status == "Charging" then
+            bat_header = "  "
+        end
+
         if perc_now < 20 then
             widget:set_markup(markup(red, bat_header) .. bat_p)
         else
             widget:set_markup(markup(gray, bat_header) .. bat_p)
         end
+
     end
 })
 
@@ -509,24 +512,18 @@ awful.rules.rules = {
                      focus = awful.client.focus.filter,
                      keys = clientkeys,
                      buttons = clientbuttons,
-	                   size_hints_honor = false } },
-    { rule = { class = "URxvt" },
-          properties = { opacity = 0.99 } },
+                     size_hints_honor = false } },
+    { rule = { class = "sakura" },
+          properties = { tag = tags[1][4]} },
 
-    { rule = { class = "MPlayer" },
-          properties = { floating = true } },
-
-    { rule = { class = "Dwb" },
-          properties = { tag = tags[1][1] } },
-
-    { rule = { class = "Iron" },
+    { rule = { class = "Firefox" },
           properties = { tag = tags[1][1] } },
 
     { rule = { instance = "plugin-container" },
           properties = { tag = tags[1][1] } },
 
-	  { rule = { class = "Gimp" },
-     	    properties = { tag = tags[1][4] } },
+	  { rule = { class = "emacs" },
+     	    properties = { tag = tags[1][3] } },
 
     { rule = { class = "Gimp", role = "gimp-image-window" },
           properties = { maximized_horizontal = true,
@@ -536,19 +533,19 @@ awful.rules.rules = {
 
 -- {{{ Signals
 -- signal function to execute when a new client appears.
-local sloppyfocus_last = {c=nil}
+--local sloppyfocus_last = {c=nil}
 client.connect_signal("manage", function (c, startup)
     -- Enable sloppy focus
-    client.connect_signal("mouse::enter", function(c)
-         if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
-            and awful.client.focus.filter(c) then
-             -- Skip focusing the client if the mouse wasn't moved.
-             if c ~= sloppyfocus_last.c then
-                 client.focus = c
-                 sloppyfocus_last.c = c
-             end
-         end
-     end)
+--    client.connect_signal("mouse::enter", function(c)
+--         if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
+--            and awful.client.focus.filter(c) then
+--             -- Skip focusing the client if the mouse wasn't moved.
+--             if c ~= sloppyfocus_last.c then
+--                 client.focus = c
+--                 sloppyfocus_last.c = c
+--             end
+--         end
+--     end)
 
     local titlebars_enabled = false
     if titlebars_enabled and (c.type == "normal" or c.type == "dialog") then
